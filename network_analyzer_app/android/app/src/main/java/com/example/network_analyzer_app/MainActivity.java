@@ -1,4 +1,4 @@
- package com.example.network_analyzer_app;
+package com.example.network_analyzer_app;
 
 import android.Manifest;
 import android.content.Context;
@@ -63,13 +63,18 @@ public class MainActivity extends FlutterActivity {
 
     private Map<String, String> getTelephonyInfo() {
         Map<String, String> telephonyInfo = new HashMap<>();
-        // Operator
         telephonyInfo.put("operator", telephonyManager.getNetworkOperatorName());
-        // Signal Power
         telephonyInfo.put("signalPower", getSignalStrength());
-        // SINR/SNR (Not available in all devices)
         telephonyInfo.put("sinr", getSNR());
-        // Network Type
+        telephonyInfo.put("networkType", getNetworkType());
+        telephonyInfo.put("frequencyBand", getFrequencyBand());
+        telephonyInfo.put("cellId", getCellInfo());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.getDefault());
+        telephonyInfo.put("timeStamp", sdf.format(new Date()));
+        return telephonyInfo;
+    }
+
+    private String getNetworkType() {
         int networkType = telephonyManager.getNetworkType();
         String networkTypeString;
         switch (networkType) {
@@ -97,15 +102,8 @@ public class MainActivity extends FlutterActivity {
             default:
                 networkTypeString = "Unknown";
         }
-        telephonyInfo.put("networkType", networkTypeString);
-        // Frequency Band
-        telephonyInfo.put("frequencyBand", getFrequencyBand());
-        // Cell ID
-        telephonyInfo.put("cellId", getCellInfo());
-        // Time Stamp
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.getDefault());
-        telephonyInfo.put("timeStamp", sdf.format(new Date()));
-        return telephonyInfo;
+
+        return networkTypeString;
     }
 
     private String getSignalStrength() {
