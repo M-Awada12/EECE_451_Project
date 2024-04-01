@@ -2,6 +2,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Widgets/Status.dart';
+import 'Widgets/Statistics.dart';
 
 void main() {
   runApp(MyApp());
@@ -62,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         page = Status();
       case 1:
-        page = Status();
+        page = Statistics();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }

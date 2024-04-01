@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
 
 class CustomBox extends StatelessWidget {
   final String? number;
@@ -54,7 +56,6 @@ class CustomBox extends StatelessWidget {
   }
 }
 
-
 class Status extends StatefulWidget {
   @override
   _StatusState createState() => _StatusState();
@@ -71,6 +72,8 @@ class _StatusState extends State<Status> {
   String? cellId = '';
   String? timeStamp = '';
   String error = '';
+  String? MACAddress = '';
+  String? IPAddress = '';
 
   late Timer _timer;
 
@@ -100,6 +103,22 @@ class _StatusState extends State<Status> {
     }
   }
 
+  void sendData(data) async {
+  final String apiUrl = 'http://192.168.1.8:8000/data';
+
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    body: jsonEncode(data),
+    headers: {'Content-Type': 'application/json'},
+  );
+
+  if (response.statusCode == 200) {
+    print('Data sent successfully');
+  } else {
+    print('Failed to send data');
+  }
+}
+
   Future<void> _getTelephonyInfo() async {
     try {
       final Map<dynamic, dynamic> result =
@@ -112,9 +131,12 @@ class _StatusState extends State<Status> {
         frequencyBand = result['frequencyBand'];
         cellId = result['cellId'];
         timeStamp = result['timeStamp'];
+        MACAddress = result['macAddress'];
+        IPAddress = result['ipAddress'];
         error = '';
       });
 
+      sendData(result);
       print('Operator: $operator');
       print('Signal Power: $signalPower dBm');
       print('SINR/SNR: $sinr dB');
@@ -122,6 +144,8 @@ class _StatusState extends State<Status> {
       print('Frequency Band: $frequencyBand');
       print('Cell ID: $cellId');
       print('Time Stamp: $timeStamp');
+      print('MAC Address: $MACAddress');
+      print('IP Address: $IPAddress');
     } on PlatformException catch (e) {
       setState(() {
         error = "Failed to get telephony info: '${e.message}'.";

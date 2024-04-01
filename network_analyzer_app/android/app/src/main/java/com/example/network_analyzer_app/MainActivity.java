@@ -18,6 +18,17 @@ import android.telephony.TelephonyManager;
 import android.telephony.ServiceState;
 import android.util.Log;
 import android.telephony.SignalStrength;
+import android.net.wifi.WifiManager;
+import android.content.SharedPreferences;
+import android.provider.Settings;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.Enumeration;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -69,6 +80,8 @@ public class MainActivity extends FlutterActivity {
         telephonyInfo.put("networkType", getNetworkType());
         telephonyInfo.put("frequencyBand", getFrequencyBand());
         telephonyInfo.put("cellId", getCellInfo());
+        telephonyInfo.put("macAddress", getMacAddressOrUniqueIdentifier(getApplicationContext()));
+        telephonyInfo.put("ipAddress", getDeviceIpAddress());
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.getDefault());
         telephonyInfo.put("timeStamp", sdf.format(new Date()));
         return telephonyInfo;
@@ -132,7 +145,7 @@ public class MainActivity extends FlutterActivity {
 
             int snr = -rsrp - rssi;
 
-            return String.valueOf(snr);
+            return String.valueOf(Math.abs(snr));
         } else {
             return "N/A";
         }
@@ -189,6 +202,102 @@ public class MainActivity extends FlutterActivity {
         }
     }
     return frequencyBand;
+}
+
+    public static String getMacAddressOrUniqueIdentifier(Context context) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        return getMacAddress();
+    } else {
+        String uniqueIdentifier = getOrCreateUniqueIdentifier(context);
+        return uniqueIdentifier;
+    }
+}
+
+private static final String UNIQUE_IDENTIFIER_KEY = "unique_identifier";
+
+private static String getOrCreateUniqueIdentifier(Context context) {
+    SharedPreferences sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+    String uniqueIdentifier = sharedPreferences.getString(UNIQUE_IDENTIFIER_KEY, null);
+    if (uniqueIdentifier == null) {
+        uniqueIdentifier = generateUniqueIdentifier(context);
+        sharedPreferences.edit().putString(UNIQUE_IDENTIFIER_KEY, uniqueIdentifier).apply();
+    }
+    return uniqueIdentifier;
+}
+
+private static String generateUniqueIdentifier(Context context) {
+    String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    String uuid = UUID.randomUUID().toString();
+    String combined = androidId + uuid;
+    String macAddressLikeIdentifier = formatToMacAddressLikeString(combined);
+    return macAddressLikeIdentifier;
+}
+
+private static String formatToMacAddressLikeString(String input) {
+    if (input.length() < 12) {
+        throw new IllegalArgumentException("Input string is too short");
+    }
+    StringBuilder macAddressBuilder = new StringBuilder();
+    for (int i = 0; i < 12; i += 2) {
+        if (i > 0) {
+            macAddressBuilder.append(":");
+        }
+        macAddressBuilder.append(input.substring(i, i + 2));
+    }
+    return macAddressBuilder.toString();
+}
+
+private static String getMacAddress() {
+    try {
+        String interfaceName = "wlan0";
+        List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+        for (NetworkInterface inter_face : interfaces) {
+            if (!inter_face.getName().equalsIgnoreCase(interfaceName)) {
+                continue;
+            }
+
+            byte[] mac = inter_face.getHardwareAddress();
+            if (mac == null) {
+                return "";
+            }
+
+            StringBuilder buffer = new StringBuilder();
+            for (byte aMac : mac) {
+                buffer.append(String.format("%02X:", aMac));
+            }
+            if (buffer.length() > 0) {
+                buffer.deleteCharAt(buffer.length() - 1);
+            }
+            return buffer.toString();
+        }
+    } catch (Exception ignored) {
+    }
+    return "";
+}
+
+public String getDeviceIpAddress() {
+    String ipAddress = "";
+    try {
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+        while (networkInterfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = networkInterfaces.nextElement();
+            Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+            while (inetAddresses.hasMoreElements()) {
+                InetAddress inetAddress = inetAddresses.nextElement();
+                // Check if the IP address is not loopback and is IPv4
+                if (!inetAddress.isLoopbackAddress() && inetAddress.getAddress().length == 4) {
+                    ipAddress = inetAddress.getHostAddress();
+                    break;
+                }
+            }
+            if (!ipAddress.isEmpty()) {
+                break;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return ipAddress;
 }
 
 }
