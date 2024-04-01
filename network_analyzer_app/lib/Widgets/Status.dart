@@ -104,7 +104,7 @@ class _StatusState extends State<Status> {
   }
 
   void sendData(data) async {
-  final String apiUrl = 'http://192.168.1.8:8000/data';
+  final String apiUrl = 'https://four51-server.onrender.com/data';
 
   final response = await http.post(
     Uri.parse(apiUrl),

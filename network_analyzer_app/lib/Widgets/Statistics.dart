@@ -34,7 +34,7 @@ class StatisticData {
 }
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.1.8:8000/statistics';
+  static const String baseUrl = 'https://four51-server.onrender.com/statistics';
 
   static Future<StatisticData> fetchData(Map<dynamic, dynamic> data) async {
     final response = await http.post(
