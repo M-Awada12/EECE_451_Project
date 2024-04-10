@@ -1,0 +1,198 @@
+.navbar {
+  background-color: whitesmoke;
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  position: sticky;
+  top: 0;
+  z-index: 200000;
+  padding-left: 6vw;
+  padding-right: 6vw;
+}
+
+.title-navbar {
+  padding-left: 20px;
+  color: #2980b9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 80px;
+  max-width: 1500px;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  text-align: center;
+  margin-left: auto;
+}
+
+.nav-links {
+  color: black;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  height: 100%;
+  border-bottom: 3px solid transparent;
+  transition: font-size 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.nav-links:hover {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.fa-code {
+  margin-left: 1rem;
+}
+
+.nav-item {
+  line-height: 40px;
+  margin-right: 1rem;
+}
+
+.nav-item:after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 0;
+  background: transparent;
+  transition: width 0.7s ease, background-color 0.5s ease;
+}
+
+.nav-item:hover:after {
+  width: 100%;
+  background: #0c73c7;
+}
+
+.nav-item .active {
+  color: #0c73c7;
+}
+
+.nav-icon {
+  display: none;
+}
+
+.navbar_toggle {
+  margin-top: 7px;
+  display: block;
+  width: 30px;
+  height: 22.5px;
+  position: relative;
+  transform: rotate(0deg);
+  transition: 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+.navbar_toggle span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: black;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: 0.25s ease-in-out;
+}
+
+.navbar_toggle span:nth-child(1) {
+  top: 0px;
+}
+
+.navbar_toggle span:nth-child(2),
+.navbar_toggle span:nth-child(3) {
+  top: 9px;
+}
+
+.navbar_toggle span:nth-child(4) {
+  top: 18px;
+}
+
+.navbar_toggle_x span:nth-child(1),
+.navbar_toggle_x span:nth-child(4) {
+  top: 9px;
+  width: 0%;
+  left: 50%;
+}
+
+.navbar_toggle_x span:nth-child(2) {
+  transform: rotate(45deg);
+}
+
+.navbar_toggle_x span:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+#logo-image {
+  width: 110px;
+  height: auto;
+}
+
+@media screen and (max-width: 1050px) {
+
+  .title-navbar {
+    padding-left: 20px;
+    color: #2980b9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 50%;
+  }
+  
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-top: 1px solid black;
+    position: absolute;
+    top: 80px;
+    left: -110%;
+    opacity: 0;
+    transition: all 0.5s ease;
+    z-index: 1;
+    margin-top: 0;
+    overflow-y: auto;
+    height: calc(100vh - 80px);
+  }
+
+  .nav-menu.active {
+    background: white;
+    left: 0px;
+    opacity: 1;
+    transition: all 0.5s ease;
+  }
+
+  .nav-item .active {
+    color: #0c73c7;
+    border: none;
+  }
+
+  .nav-links {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .nav-icon {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(-100%, 60%);
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #0c73c7;
+  }
+
+  .nav-item:last-child {
+    margin-bottom: 20px;
+  }
+}
