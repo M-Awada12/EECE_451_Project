@@ -35,10 +35,15 @@ class StatisticData {
 
 class ApiService {
   static const String baseUrl = 'https://four51-server.onrender.com/statistics';
+  static const String dateUrl =
+      'https://four51-server.onrender.com/statisticsDate';
 
-  static Future<StatisticData> fetchData(Map<dynamic, dynamic> data) async {
+  static Future<StatisticData> fetchData(
+      Map<dynamic, dynamic> data, bool specificDateSelected) async {
+    final String url = specificDateSelected ? dateUrl : baseUrl;
+
     final response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse(url),
       body: jsonEncode(data),
       headers: {'Content-Type': 'application/json'},
     );
@@ -69,6 +74,9 @@ class _StatisticsState extends State<Statistics> {
 
   String? MACAddress;
   String error = '';
+  bool specificDateSelected = false;
+  DateTime? startDate;
+  DateTime? endDate;
 
   @override
   void initState() {
@@ -91,11 +99,25 @@ class _StatisticsState extends State<Statistics> {
     try {
       final Map<dynamic, dynamic> result =
           await platform.invokeMethod('getTelephonyInfo');
-      setState(() {
-        MACAddress = result['macAddress'];
-        error = '';
-        futureData = ApiService.fetchData(result);
-      });
+      Map<dynamic, dynamic> data = {'macAddress': result['macAddress']};
+
+      if (!specificDateSelected) {
+        setState(() {
+          MACAddress = result['macAddress'];
+          error = '';
+          print(result);
+          futureData = ApiService.fetchData(result, false);
+        });
+      } else {
+        data['startDate'] = startDate.toString();
+        data['endDate'] = endDate.toString();
+
+        setState(() {
+          MACAddress = result['macAddress'];
+          error = '';
+          futureData = ApiService.fetchData(data, true);
+        });
+      }
 
       print('MAC Address: $MACAddress');
     } on PlatformException catch (e) {
@@ -115,58 +137,165 @@ class _StatisticsState extends State<Statistics> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              FutureBuilder<StatisticData>(
-                future: futureData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(16.0, 400.0, 16.0, 10),
-                          child: CircularProgressIndicator(),
-                        ),
-                      ],
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (snapshot.hasData) {
-                    final data = snapshot.data!;
-                    return Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(16.0, 50.0, 16.0, 10),
-                          child: _buildChart(data.connectivityTimePerOperator,
-                              'Connectivity Time per Operator (%)'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
-                          child: _buildChart(
-                              data.connectivityTimePerNetworkType,
-                              'Connectivity Time per Network Type (%)'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
-                          child: _buildChart(data.signalPowerPerNetworkType,
-                              'Signal Power per Network Type (dBm)'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
-                          child: _buildChart(data.snrPerNetworkType,
-                              'SNR/SINR per Network Type (dB)'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
-                          child:
-                              _buildSignalPowerChart(data.signalPowerForDevice),
-                        ),
-                      ],
-                    );
-                  } else {
-                    return Text('No Data Available');
-                  }
-                },
+              Padding(
+                padding: EdgeInsets.fromLTRB(16.0, 6.0, 16.0, 10),
               ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.blue),
+                ),
+                child: DropdownButton<String>(
+                  value: specificDateSelected ? 'Specific date' : 'Overall',
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      specificDateSelected = newValue == 'Specific date';
+                      if (!specificDateSelected ||
+                          (specificDateSelected &&
+                              (startDate != null && endDate != null))) {
+                        _getTelephonyInfo();
+                      }
+                    });
+                  },
+                  items: <String>['Overall', 'Specific date']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              if (specificDateSelected) ...[
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final DateTime? pickedStartDate = await showDatePicker(
+                          context: context,
+                          initialDate: startDate ?? DateTime.now(),
+                          firstDate: DateTime(2015, 8),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedStartDate != null) {
+                          setState(() {
+                            startDate = pickedStartDate;
+                            print(startDate);
+                            if (specificDateSelected &&
+                                (startDate != null && endDate != null)) {
+                              _getTelephonyInfo();
+                            }
+                          });
+                        }
+                      },
+                      child: Text('Select Start Date'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final DateTime? pickedEndDate = await showDatePicker(
+                          context: context,
+                          initialDate: endDate ?? DateTime.now(),
+                          firstDate: DateTime(2015, 8),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedEndDate != null) {
+                          setState(() {
+                            endDate = pickedEndDate;
+                            print(endDate);
+                            if (specificDateSelected &&
+                                (startDate != null && endDate != null)) {
+                              _getTelephonyInfo();
+                            }
+                          });
+                        }
+                      },
+                      child: Text('Select End Date'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+              ],
+              if (!specificDateSelected ||
+                  (specificDateSelected &&
+                      (startDate != null && endDate != null))) ...[
+                FutureBuilder<StatisticData>(
+                  future: futureData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.0, 400.0, 16.0, 10),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ],
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (snapshot.hasData) {
+                      final data = snapshot.data!;
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.0, 50.0, 16.0, 10),
+                            child: _buildChart(data.connectivityTimePerOperator,
+                                'Connectivity Time per Operator (%)'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
+                            child: _buildChart(
+                                data.connectivityTimePerNetworkType,
+                                'Connectivity Time per Network Type (%)'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
+                            child: _buildChart(data.signalPowerPerNetworkType,
+                                'Signal Power per Network Type (dBm)'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
+                            child: _buildChart(data.snrPerNetworkType,
+                                'SNR/SINR per Network Type (dB)'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, 10),
+                            child: _buildSignalPowerChart(
+                                data.signalPowerForDevice),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Text('No Data Available');
+                    }
+                  },
+                ),
+              ] else ...[
+                SizedBox(height: 200),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 82, 151, 255),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    'Please Insert Start and End Dates',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ]
             ],
           ),
         ),

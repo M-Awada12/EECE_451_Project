@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query
 from pydantic import BaseModel
 import uvicorn
 from pymongo import MongoClient
+from datetime import datetime
 from collections import defaultdict
 
 app = FastAPI()
@@ -12,6 +13,11 @@ collection = db["User Connection Data"]
 
 class getStatisticsData(BaseModel):
     macAddress: str
+
+class getStatisticsDateData(BaseModel):
+    macAddress: str
+    startDate: str
+    endDate: str
 
 class OperatorData(BaseModel):
     operator: str
@@ -33,6 +39,21 @@ async def receive_data(data: OperatorData):
 async def get_data(data: getStatisticsData):
     results = []
     cursor = collection.find({"macAddress": data.macAddress})
+    for document in cursor:
+        document['_id'] = str(document['_id'])
+        results.append(document)
+    metrics = calculate_metrics(results, data.macAddress)
+    return metrics
+
+@app.post("/statisticsDate")
+async def get_data(data: getStatisticsDateData):
+    results = []
+    start_date = datetime.strptime(data.startDate, "%Y-%m-%d %H:%M:%S.%f")
+    end_date = datetime.strptime(data.endDate, "%Y-%m-%d %H:%M:%S.%f")
+    cursor = collection.find({
+        "mac_address": data.macAddress,
+        "timeStamp": {"$gte": start_date, "$lte": end_date}
+    })
     for document in cursor:
         document['_id'] = str(document['_id'])
         results.append(document)
