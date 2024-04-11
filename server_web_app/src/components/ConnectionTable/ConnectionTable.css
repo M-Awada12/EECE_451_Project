@@ -153,6 +153,25 @@ alphabet-table-container {
   transition: border-color 0.3s ease;
 }
 
+.container {
+  border: 2px solid #2980b9;
+  width: fit-content;
+  padding: 20px; /* Add padding for spacing inside the container */
+  font-family: Arial, sans-serif; /* Choose your desired font */
+  text-align: center;
+  margin: 20px auto; /* Center the container horizontally with top and bottom margin */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.label {
+  font-size: 18px; /* Adjust font size as needed */
+  margin-bottom: 10px; /* Adjust margin between labels as needed */
+}
+
 .picker-select:hover {
   border-color: #1e88e5;
   /* Darker blue on hover */

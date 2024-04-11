@@ -17,40 +17,38 @@ class CustomBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        height: 100, // Set the fixed height
-        margin: EdgeInsets.all(8.0),
-        padding: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.0),
-          color: Colors.blue,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              number ?? '', // Display number or empty string if null
+    return Container(
+      height: 100, // Set the fixed height
+      margin: EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: Colors.blue,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            number ?? '', // Display number or empty string if null
+            style: TextStyle(
+              fontSize: 21.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 5.0),
+          Center(
+            child: Text(
+              label ?? '', // Display label or empty string if null
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 21.0,
-                fontWeight: FontWeight.bold,
+                fontSize: 14.0,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 5.0),
-            Center(
-              child: Text(
-                label ?? '', // Display label or empty string if null
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -104,20 +102,20 @@ class _StatusState extends State<Status> {
   }
 
   void sendData(data) async {
-  final String apiUrl = 'https://four51-server.onrender.com/data';
+    final String apiUrl = 'https://four51-server.onrender.com/data';
 
-  final response = await http.post(
-    Uri.parse(apiUrl),
-    body: jsonEncode(data),
-    headers: {'Content-Type': 'application/json'},
-  );
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: jsonEncode(data),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-  if (response.statusCode == 200) {
-    print('Data sent successfully');
-  } else {
-    print('Failed to send data');
+    if (response.statusCode == 200) {
+      print('Data sent successfully');
+    } else {
+      print('Failed to send data');
+    }
   }
-}
 
   Future<void> _getTelephonyInfo() async {
     try {
@@ -155,81 +153,75 @@ class _StatusState extends State<Status> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-      ),
-      home: Scaffold(
-        backgroundColor: Color.fromARGB(255, 191, 219, 255),
-        body: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  if (error.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: Text(
-                        error,
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
+    return Scaffold(
+      backgroundColor: Color.fromARGB(255, 191, 219, 255),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                if (error.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Text(
+                      error,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: CustomBox(
-                            number: networkType, label: 'Network Type'),
-                      ),
-                      SizedBox(width: 10),
-                      Flexible(
-                        child: CustomBox(
-                            number: signalPower, label: 'Signal Power (dBm)'),
-                      ),
-                    ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: CustomBox(number: sinr, label: 'SINR/SNR (dB)'),
-                      ),
-                      SizedBox(width: 10),
-                      Flexible(
-                        child: CustomBox(
-                            number: frequencyBand,
-                            label: 'Frequency Band (MHz)'),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: CustomBox(number: operator, label: 'Operator'),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: CustomBox(number: cellId, label: 'Cell ID'),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: CustomBox(number: timeStamp, label: 'Time Stamp'),
-                  ),
-                  SizedBox(height: 20),
-                ],
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child:
+                          CustomBox(number: networkType, label: 'Network Type'),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: CustomBox(
+                          number: signalPower, label: 'Signal Power (dBm)'),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: CustomBox(number: sinr, label: 'SINR/SNR (dB)'),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: CustomBox(
+                          number: frequencyBand, label: 'Frequency Band (MHz)'),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: CustomBox(number: operator, label: 'Operator'),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: CustomBox(number: cellId, label: 'Cell ID'),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: CustomBox(number: timeStamp, label: 'Time Stamp'),
+                ),
+                SizedBox(height: 20),
+              ],
             ),
           ),
         ),

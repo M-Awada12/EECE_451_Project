@@ -25,8 +25,26 @@ function ConnectionTable() {
     return () => clearInterval(interval);
   }, []);
 
+  function getConnected() {
+    let returnValue = 0;
+    Object.keys(data.connected_devices).map((key) => {
+      if (data.connected_devices[key] == true) {
+        returnValue++;
+      }
+    })
+    return returnValue;
+  }
+
   return (
     <div className="connection-table-container">
+      {Object.keys(data).length === 0 ? (
+        null
+      ) : (
+        <div className="container">
+          <label className="label">Total Devices: {Object.keys(data.connected_devices).length}</label>
+          <label className="label">Connected Devices: {getConnected()}</label>
+        </div>
+      )}
       <div className="awesome-container">
         <div className="center-container">
           {Object.keys(data).length === 0 ? (

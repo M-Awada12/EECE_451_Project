@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS"
         tools:ignore="ProtectedPermissions"/> 
     <application
-        android:label="network_analyzer_app"
+        android:label="Mobile Network Analyzer"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
