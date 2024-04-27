@@ -4,12 +4,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/> 
-    <uses-permission android:name = "android.permission.ACCESS_WIFI_STATE" /> 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/> 
     <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS"
         tools:ignore="ProtectedPermissions"/> 
     <application
         android:label="Mobile Network Analyzer"
-        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
