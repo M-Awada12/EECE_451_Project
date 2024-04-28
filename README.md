@@ -9,6 +9,7 @@ Note: We are using a free web hosting service that shuts down the backend server
 ### First Option (Optimal Option):
 1. Transfer the "Mobile_Network_Analyzer.apk" file to an Android device.
 2. Install the apk file.
+3. Go to settings and allow all required permissions
 
 ### Second Option:
 1. Have Flutter installed.
